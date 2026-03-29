@@ -1,0 +1,63 @@
+---
+title: "Guild Stats"
+description: "View farming weight leaderboards for any Hypixel guild, and configure the Elite bot for your Discord server."
+---
+
+The Guilds section lets you look up any Hypixel guild and browse the farming weight of every member. Guild pages are public — no login required to view them.
+
+## Finding a guild
+
+Browse and search for guilds at:
+
+```
+https://eliteskyblock.com/guilds
+```
+
+Use the search bar to find a guild by name. Results are paginated and can be sorted. Click a guild to open its detail page.
+
+Individual guild pages are available at:
+
+```
+https://eliteskyblock.com/guilds/{guildId}
+```
+
+## What a guild page shows
+
+<CardGroup cols={2}>
+  <Card title="Guild overview" icon="shield">
+    Guild name, tag, description, preferred games, creation date, and a link to the guild's Plancke page.
+  </Card>
+  <Card title="Key stats" icon="chart-bar">
+    Average Skyblock level, average skill level, combined guild farming weight, and total member count — pulled from the most recent data snapshot.
+  </Card>
+  <Card title="Member list" icon="users">
+    All guild members listed with individual farming weight. Sorted by weekly guild experience by default. Click a member's name to visit their profile.
+  </Card>
+  <Card title="Member leaderboards" icon="trophy">
+    Switch to the **Member Leaderboards** tab to rank members across different farming and skill leaderboards.
+  </Card>
+</CardGroup>
+
+## Discord server pages
+
+Discord servers that have configured the Elite bot get a dedicated server page. These pages display the server's active and past events, as well as any Jacob Contest leaderboards the server has set up.
+
+Server pages are accessible at:
+
+```
+https://eliteskyblock.com/server/{guildId}
+```
+
+<Note>
+  The Discord server page is separate from the Hypixel guild page. A Discord server can host events without having a corresponding Hypixel guild, and vice versa.
+</Note>
+
+## Configuring the Elite bot for your server
+
+Discord server administrators can enable Elite bot features — including farming events and Jacob leaderboards — for their server. The bot must be invited to the server and configured by an admin through the guild dashboard.
+
+<Info>
+  Bot configuration requires Discord login and administrator permissions in the Discord server. Access to the event and Jacob leaderboard features is currently invite only.
+</Info>
+
+Once configured, your server's events and leaderboards appear on your server's public page at `https://eliteskyblock.com/server/{guildId}`, and members can join events through the site.

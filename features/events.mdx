@@ -1,0 +1,137 @@
+---
+title: "Community Events"
+description: "Time-limited farming competitions hosted by Discord servers, where players race to earn the most points before the clock runs out."
+---
+
+Community Events are time-limited competitions organized by Discord servers using the Elite bot. Players join an event, farm crops or complete objectives during the event window, and earn points that appear on a live leaderboard. Events can be solo or team-based.
+
+<Info>
+  You must be logged in with Discord and have a linked Minecraft account to join an event.
+</Info>
+
+## Finding events
+
+Active and upcoming events are listed on the browse page. Each event lives at a URL with the format:
+
+```
+https://eliteskyblock.com/event/{event-name}-{event-id}
+```
+
+You can also find events by visiting the Discord server page for the host server:
+
+```
+https://eliteskyblock.com/server/{guildId}
+```
+
+## What the event page shows
+
+<CardGroup cols={2}>
+  <Card title="Countdown timer" icon="timer">
+    A live countdown to the event start or end, updated every half second.
+  </Card>
+  <Card title="Event details" icon="info">
+    Start and end dates, the joining deadline, event type, description, prize info, and rules set by the host.
+  </Card>
+  <Card title="Leaderboard" icon="trophy">
+    The top participants ranked by score. For team events you can toggle between the team leaderboard and the individual member leaderboard.
+  </Card>
+  <Card title="Host server" icon="server">
+    The Discord server running the event, including a direct link to join it.
+  </Card>
+</CardGroup>
+
+## Joining an event
+
+<Steps>
+  <Step title="Log in with Discord">
+    Click the login button and authenticate with Discord. You must also have a Minecraft account linked to your Elite profile.
+  </Step>
+  <Step title="Be a member of the host server">
+    You must be in the Discord server that is hosting the event. A link to join the server is shown on the event page.
+  </Step>
+  <Step title="Open the membership page">
+    Click **Join Event** on the event page before the joining deadline passes. This takes you to `https://eliteskyblock.com/event/{slug}/membership`.
+  </Step>
+  <Step title="Select a profile and agree to the rules">
+    Choose the Hypixel Skyblock profile you want to compete on. This choice cannot be changed later. Read and accept the event rules, Hypixel's server rules, and the host server's rules, then submit the form.
+  </Step>
+</Steps>
+
+<Warning>
+  The profile you select when joining cannot be changed after you submit. Make sure collections and inventory API access are enabled on your profile at all times — turning them off will get you automatically removed from the event.
+</Warning>
+
+## How scoring works
+
+When you join, the site records your starting stats for the relevant event type. Your score is the difference between those starting stats and your current stats, updated each time someone loads your profile page.
+
+<Note>
+  Stats are **not** fetched automatically from Hypixel. Someone must visit your profile page to trigger an update. During active events this usually happens frequently enough that it doesn't cause issues.
+</Note>
+
+### Event types
+
+| Type | What counts |
+|---|---|
+| Farming Weight | Collection gain verified against farming tool counters. Minion collections and Daedalus Axe do not count. Tools without a built-in counter require the Cultivating enchantment. |
+| Medals | Jacob Contest placements. You must claim your contests in-game. |
+| Pests | Number of pests killed. |
+| Collections | Specific item collections as listed in the event description. |
+
+## Full leaderboard
+
+The event page shows a preview of the top participants. To see the complete ranked list, click **View Leaderboard** or navigate directly to:
+
+```
+https://eliteskyblock.com/event/{slug}/leaderboard
+```
+
+## Team events
+
+Some events group players into teams. Team scores are the sum of all member contributions.
+
+<Steps>
+  <Step title="Join the event first">
+    Complete the individual join flow described above. You must be in the event before you can join or create a team.
+  </Step>
+  <Step title="Join an existing team">
+    Ask your team leader for the join code. On the membership page, select the team from the list, enter the code, and submit.
+  </Step>
+  <Step title="Or create a new team">
+    If the event allows it, click **Create Team** on the membership page. Your team gets a generated name and a join code that you can share with others.
+  </Step>
+</Steps>
+
+<CardGroup cols={2}>
+  <Card title="Switching teams" icon="arrow-left-right">
+    You can leave and rejoin teams freely until the joining period closes. Your score carries over to whichever team you are on when joining closes.
+  </Card>
+  <Card title="Team management" icon="settings">
+    Team owners can rename the team, reset the join code, kick members, and transfer ownership — all from the membership page. These actions are locked once the joining period ends.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Once the joining period closes, you cannot change teams, kick members, or leave your team.
+</Warning>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I rejoin if I leave?">
+    Yes, as long as the event is still running, joining hasn't closed, and you haven't been disqualified. Your score is not reset when you rejoin.
+  </Accordion>
+  <Accordion title="What if I get disqualified?">
+    You will be removed from the leaderboard and shown a disqualification reason. You cannot rejoin. To appeal, contact the staff of the Discord server hosting the event.
+  </Accordion>
+  <Accordion title="Do co-op members need to be on the same team?">
+    No. Team members can be on different Skyblock co-ops. Whether you share a co-op with your teammates has no effect on the event.
+  </Accordion>
+  <Accordion title="What if my stats are still on cooldown when the event ends?">
+    Your score is locked in at the last time your data was fetched. If you are on cooldown when the event ends, a few minutes of progress may not be counted.
+  </Accordion>
+</AccordionGroup>
+
+## Event agreement
+
+All participants are expected to follow [Hypixel's Server Rules](https://hypixel.net/rules). Prizes are the sole responsibility of the Discord server or event sponsor. Elite Skyblock does not take a cut of prizes or act as a middleman, and is not responsible for unpaid prizes.

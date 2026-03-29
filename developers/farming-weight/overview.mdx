@@ -1,0 +1,82 @@
+---
+title: "Farming Weight Package"
+description: "Open-source npm package for farming weight and fortune calculations in Hypixel SkyBlock."
+---
+
+The `farming-weight` package provides tools to calculate farming weight and fortune for Hypixel SkyBlock players. It is the same library that powers [Elite Skyblock](https://eliteskyblock.com) and is published openly for anyone to use in their own projects.
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install farming-weight
+```
+
+```bash pnpm
+pnpm add farming-weight
+```
+
+```bash yarn
+yarn add farming-weight
+```
+
+</CodeGroup>
+
+## Package philosophy
+
+The package is designed to accept existing, pre-processed data and return farming weight or fortune results. **Input is not raw Hypixel API responses.** The Hypixel API format changes over time; keeping up with those changes is your responsibility before passing data to this package. This makes the package easier to maintain and lets you control how you fetch and transform your data.
+
+Any field you omit is simply skipped — the calculator does not throw for missing data.
+
+## Key exports
+
+| Export | Description |
+|--------|-------------|
+| `createFarmingWeightCalculator` | Creates a weight calculator instance from player data |
+| `createFarmingPlayer` | Creates a player object for fortune calculations |
+| `calculateDetailedAverageDrops` | Calculates per-crop drop rates and NPC profit |
+| `calcWeightForCrop` | Utility to get the weight of a single crop collection |
+| `Crop` | Enum of all supported crop types |
+
+## Calculators
+
+<CardGroup cols={2}>
+  <Card title="Weight Calculator" icon="scale-balanced" href="/developers/farming-weight/weight-calculator">
+    Calculate a player's total farming weight from crop collections, farming level, medals, minions, and pests.
+  </Card>
+  <Card title="Fortune Calculator" icon="clover" href="/developers/farming-weight/fortune-calculator">
+    Calculate a player's farming fortune from their tools, armor, equipment, accessories, and pets.
+  </Card>
+  <Card title="Rates Calculator" icon="chart-line" href="/developers/farming-weight/rates-calculator">
+    Calculate expected crop drops and NPC coin income per farming session.
+  </Card>
+</CardGroup>
+
+## Crop enum
+
+All crop-keyed data in this package uses the `Crop` enum, which matches Hypixel SkyBlock collection IDs.
+
+```typescript
+import { Crop } from 'farming-weight';
+
+// Crop enum values
+Crop.Cactus      // 'CACTUS'
+Crop.Carrot      // 'CARROT_ITEM'
+Crop.CocoaBeans  // 'INK_SACK:3'
+Crop.Melon       // 'MELON'
+Crop.Mushroom    // 'MUSHROOM_COLLECTION'
+Crop.NetherWart  // 'NETHER_STALK'
+Crop.Potato      // 'POTATO_ITEM'
+Crop.Pumpkin     // 'PUMPKIN'
+Crop.SugarCane   // 'SUGAR_CANE'
+Crop.Wheat       // 'WHEAT'
+Crop.Seeds       // 'WHEAT_SEEDS'
+Crop.Sunflower   // 'DOUBLE_PLANT'
+Crop.Moonflower  // 'MOONFLOWER'
+Crop.WildRose    // 'WILD_ROSE'
+```
+
+## License
+
+MIT — credit is appreciated per the license terms. The package source lives in the [EliteFarmers/Website repository](https://github.com/EliteFarmers/Website/tree/main/packages/farming-weight) under `packages/farming-weight`.

@@ -1,0 +1,70 @@
+---
+title: "Player Stats"
+description: "Look up any Hypixel SkyBlock player's farming stats, collections, tools, and contest history on Elite Skyblock."
+---
+
+Every Hypixel SkyBlock player with farming activity has a profile page on Elite Skyblock. The page pulls live data from the Hypixel API and displays farming weight, skills, crop collections, gear, and more.
+
+## Looking up a player
+
+<Steps>
+  <Step title="Navigate to the player's profile">
+    Go to `https://eliteskyblock.com/@{username}`, replacing `{username}` with the player's Minecraft username.
+
+    Elite Skyblock resolves the username to a UUID and redirects you to the correct profile automatically.
+  </Step>
+  <Step title="Select a profile">
+    Players can have multiple SkyBlock profiles (e.g. Strawberry, Mango, Cucumber). A profile selector appears at the top of the page. The URL updates to reflect the selected profile:
+
+    ```
+    https://eliteskyblock.com/@{username}/{profileName}
+    ```
+
+    Each profile stores its own collections, skills, and farming data independently.
+  </Step>
+  <Step title="Browse the tabs">
+    Use the navigation bar on the profile page to switch between sections.
+  </Step>
+</Steps>
+
+<Info>
+  If a player has never been fetched before, it may take a moment to load their data for the first time.
+</Info>
+
+## Profile tabs
+
+<CardGroup cols={2}>
+  <Card title="Stats" icon="chart-bar">
+    The default view. Shows farming weight with global rank, farming level and XP, all skill levels, crop collections, farming tools, and a summary of Jacob's contest medals.
+  </Card>
+  <Card title="Fortune" icon="sparkles">
+    Detailed breakdown of farming fortune per crop, including sources from tools, armor, equipment, accessories, pets, and buffs. Also shows cheapest upgrades and estimated rates.
+  </Card>
+  <Card title="Garden" icon="leaf">
+    Garden level and milestones, unlocked plots, crop upgrade levels, visitor history, composter upgrades, and copper balance.
+  </Card>
+  <Card title="Contests" icon="trophy">
+    Full Jacob's Farming Contest history, grouped by SkyBlock year. Shows medal counts (Diamond, Platinum, Gold, Silver, Bronze) for each year and overall.
+  </Card>
+  <Card title="Ranks" icon="list-ordered">
+    All leaderboard positions where the player appears in the top 50,000. Covers farming weight, crop collections, skills, milestones, medals, and more.
+  </Card>
+  <Card title="Charts" icon="trending-up">
+    Historical graphs of farming weight and other tracked stats over time.
+  </Card>
+</CardGroup>
+
+## Data shown on the Stats tab
+
+| Section | Details |
+|---|---|
+| Farming Weight | Total weight score and global leaderboard rank |
+| Farming Level | Current level (up to 50 or 60 with Jacob perk), total XP, and rank |
+| Skills | All SkyBlock skill levels |
+| Crop Collections | Collected amounts for all farming crops |
+| Farming Tools | Tools in inventory with fortune values |
+| Jacob's Contests | Medal summary and recent participations |
+
+<Note>
+  Garden data (plots, visitors, composter) is shared between all members of a co-op profile because of how Hypixel stores it. There is no way to attribute garden progress to individual co-op members.
+</Note>

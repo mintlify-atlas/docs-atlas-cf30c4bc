@@ -1,122 +1,75 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Elite Skyblock",
+  "theme": "almond",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#5cbd98",
+    "light": "#dbce82",
+    "dark": "#5e5c41"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "https://media.brand.dev/5b0af30b-88d2-4c55-a3c1-f2c03314f5b1.webp",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/EliteFarmers/Website"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/EliteFarmers/Website"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "self-hosting"]
+          },
+          {
+            "group": "Core Features",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "features/player-stats",
+              "features/farming-weight",
+              "features/fortune-calculator",
+              "features/leaderboards",
+              "features/jacob-contests"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Community & Events",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "features/events",
+              "features/guilds",
+              "features/shop"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Developers",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Contributing",
             "pages": [
-              "api-reference/introduction"
+              "developers/contributing",
+              "developers/environment-setup",
+              "developers/api-integration"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Farming Weight Package",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "developers/farming-weight/overview",
+              "developers/farming-weight/weight-calculator",
+              "developers/farming-weight/fortune-calculator",
+              "developers/farming-weight/rates-calculator"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

@@ -1,0 +1,124 @@
+---
+title: "Self-Hosting"
+description: "Run the Elite Skyblock website on your own machine for development or production use."
+---
+
+<Note>
+  The website requires the Elite Skyblock backend API to be running. You can find the API repository at [github.com/EliteFarmers/API](https://github.com/EliteFarmers/API). For local development you can point at the public API at `https://api.eliteskyblock.com`, but that endpoint is rate-limited and does not expose admin routes.
+</Note>
+
+## Prerequisites
+
+- **Node.js 24** or later (the Docker image uses `node:24-alpine`)
+- **pnpm** (version `10.15.0` is used in the Dockerfile)
+- **Docker** and **Docker Compose** (for production builds)
+- Git
+
+## Development setup
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/EliteFarmers/Website.git
+    cd Website
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    pnpm i
+    ```
+  </Step>
+
+  <Step title="Configure environment variables">
+    Copy the example environment file and fill in the values:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    The default values in `.env.example` work for pointing at the public API. Edit the file as needed — see the [environment variables](#environment-variables) section below for a description of each key field.
+  </Step>
+
+  <Step title="Start the development server">
+    ```bash
+    pnpm run dev
+    ```
+
+    Navigate to the URL printed in the terminal (typically `http://localhost:5173`).
+  </Step>
+</Steps>
+
+### Developing with a local API instance
+
+If you are running the [Elite API](https://github.com/EliteFarmers/API) locally, update these two values in `.env`:
+
+```bash
+ELITE_API_URL="http://localhost:5164"
+PUBLIC_DISCORD_CLIENT_ID="application-id-here"
+```
+
+`PUBLIC_DISCORD_CLIENT_ID` must match the Discord application you registered to run the API. Without it, OAuth login will not work correctly.
+
+After changing any API endpoint or DTO, regenerate the API client:
+
+```bash
+pnpm run generate-api
+```
+
+## Production build
+
+<Steps>
+  <Step title="Complete the development setup steps above">
+    Make sure you have a `.env` file configured before continuing.
+  </Step>
+
+  <Step title="Set production environment values">
+    Update `ORIGIN` and `PUBLIC_HOST_URL` in `.env` to reflect your production host:
+
+    ```bash
+    ORIGIN="http://localhost:3000"
+    PUBLIC_HOST_URL="http://localhost:3000"
+    ```
+
+    If the API is running in the same Docker network, also set:
+
+    ```bash
+    EXTERNAL_NETWORK=true
+    ```
+  </Step>
+
+  <Step title="Build and start with Docker Compose">
+    ```bash
+    docker-compose up --build -d
+    ```
+
+    The site will be available at `http://localhost:3000`.
+  </Step>
+</Steps>
+
+<Warning>
+  To deploy to a real domain, change `ORIGIN` and `PUBLIC_HOST_URL` to your domain name and add the domain to your Discord OAuth redirect URIs. Use a reverse proxy such as nginx to route external traffic to port `3000`.
+</Warning>
+
+## Environment variables
+
+The following variables are defined in `.env.example`. Copy the file to `.env` and set values appropriate for your environment.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ORIGIN` | `http://localhost:5173` | The canonical URL of the site. Must be set correctly for OAuth redirects to work. |
+| `PUBLIC_HOST_URL` | `http://localhost:5173` | Public base URL used to generate links in the UI. |
+| `ELITE_API_URL` | `https://api.eliteskyblock.com` | Base URL of the Elite backend API. Point this at a local instance when developing against the API. |
+| `PUBLIC_DISCORD_CLIENT_ID` | `1106961758905708596` | Discord application/bot client ID used for OAuth login. |
+| `PUBLIC_BOT_INVITE` | — | Full bot invite URL including permissions and scope. |
+| `ELITE_API_TOKEN` | — | Optional secret token for bypassing API rate limits. |
+| `STRAPI_API_URL` | — | CMS instance URL for articles. Not needed for basic use. |
+| `RATE_LIMIT_SECRET` | — | Secret used for signing rate-limit identifiers. |
+| `RATE_LIMIT_IP` | `60` | Max requests per IP per window. |
+| `RATE_LIMIT_PROFILE` | `5` | Max profile fetch requests per window. |
+| `PUBLIC_GTAG_MEASUREMENT_ID` | — | Google Analytics measurement ID. If set, GA is enabled and a cookie consent banner is shown. |
+
+<Note>
+  If you have questions about self-hosting, join the [support Discord server](https://eliteskyblock.com/support).
+</Note>

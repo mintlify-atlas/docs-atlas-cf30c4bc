@@ -1,0 +1,91 @@
+---
+title: "Farming Weight"
+description: "Farming Weight is a composite score that measures a player's overall farming progress across crop collections, skill level, minions, and contest medals."
+---
+
+Farming Weight is a single number that captures how much farming a player has done in Hypixel SkyBlock. It combines crop collection weight with several bonus sources, making it possible to compare farming progress across players regardless of which crops they focus on.
+
+A player's total weight and global rank are shown on their [profile page](/features/player-stats).
+
+## How weight is calculated
+
+```
+Total Weight = Crop Weight + Bonus Weight
+```
+
+### Crop weight
+
+Each crop has a divisor. A crop's weight contribution equals:
+
+```
+Crop Weight = Collection Amount / Divisor
+```
+
+| Crop | Divisor |
+|---|---|
+| Wheat | 100,000 |
+| Pumpkin | 99,236.12 |
+| Mushroom | 90,944.27 |
+| Cactus | 178,730.65 |
+| Carrot | 300,000 |
+| Potato | 298,328.17 |
+| Cocoa Beans | 276,733.75 |
+| Melon | 488,435.88 |
+| Nether Wart | 248,606.81 |
+| Sugar Cane | 198,885.45 |
+| Sunflower | 200,000 |
+| Moonflower | 200,000 |
+| Wild Rose | 200,000 |
+
+<Note>
+  Seeds (Wheat Seeds) are tracked as a separate crop in collections but have a divisor of 0, meaning they do not contribute to farming weight. Only the 13 crops listed above count toward crop weight.
+</Note>
+
+<Tip>
+  Divisors are calibrated so that equal time spent farming each crop yields roughly equal weight, accounting for differences in drop rates and farming speeds.
+</Tip>
+
+### Mushroom special case
+
+Mushroom weight is calculated dynamically based on how much of a player's other farming involved crops that yield two items per break (Cactus and Sugar Cane) versus one item per break. This accounts for the Cow Pet's ability to grant double mushroom drops from two-block-break crops.
+
+### Pest kill adjustments (uncounted crops)
+
+Pests killed in the Garden reduce crop counts for weight purposes. The crops farmed while killing pests are subtracted from the collection before weight is calculated, so pest farming does not inflate crop weight.
+
+## Bonus weight sources
+
+In addition to crop weight, several milestones grant flat bonus weight:
+
+<AccordionGroup>
+  <Accordion title="Farming 50 / Farming 60">
+    Reaching Farming level 50 grants **+100 bonus weight**.
+
+    Reaching Farming level 60 (requires the Jacob's Farming Contest level cap upgrade) grants **+250 bonus weight** instead (not additive with the level 50 bonus).
+  </Accordion>
+  <Accordion title="Tier 12 Minions">
+    Each Tier 12 farming minion crafted grants **+5 bonus weight**. The following minions count:
+
+    Wheat, Carrot, Potato, Pumpkin, Melon, Mushroom, Cocoa, Cactus, Sugar Cane, Nether Warts, Flower (Wild Rose/Moonflower), Sunflower. The game IDs are: `WHEAT_12`, `CARROT_12`, `POTATO_12`, `PUMPKIN_12`, `MELON_12`, `MUSHROOM_12`, `COCOA_12`, `CACTUS_12`, `SUGAR_CANE_12`, `NETHER_WARTS_12`, `FLOWER_12`, `SUNFLOWER_12`.
+  </Accordion>
+  <Accordion title="Anita Bonus Farming Fortune">
+    Each level of the Anita NPC's Bonus Farming Fortune perk grants **+2 bonus weight**.
+  </Accordion>
+  <Accordion title="Contest Medals">
+    Diamond, Platinum, and Gold medals earned in Jacob's Farming Contests contribute bonus weight, up to a maximum of 1,000 medals counted. The weight per medal varies by tier:
+
+    | Medal | Weight per medal |
+    |---|---|
+    | Diamond | 0.75 |
+    | Platinum | 0.5 |
+    | Gold | 0.25 |
+
+    Diamond medals are counted first, then Platinum, then Gold to fill the remaining quota up to 1,000 total.
+  </Accordion>
+</AccordionGroup>
+
+## Where to see weight
+
+A player's farming weight and global rank appear at the top of the Stats tab on their profile page at `https://eliteskyblock.com/@{username}/{profileName}`.
+
+The [Leaderboards](/features/leaderboards) page ranks all tracked players by farming weight.

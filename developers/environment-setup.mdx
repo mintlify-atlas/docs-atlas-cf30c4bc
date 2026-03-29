@@ -1,0 +1,171 @@
+---
+title: "Environment Setup"
+description: "Set up a local development environment for the Elite Skyblock website."
+---
+
+## Prerequisites
+
+| Tool | Required version |
+|------|-----------------|
+| Node.js | >= 24.0.0 |
+| pnpm | >= 10.15.0 (defined in `packageManager`) |
+| Docker | Optional — for running a local database/cache |
+
+## Local development setup
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/EliteFarmers/Website.git
+    cd Website
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    pnpm i
+    ```
+  </Step>
+
+  <Step title="Configure environment variables">
+    Copy `.env.example` to `.env`:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    The default values work for pointing at the live API. Edit `.env` as needed — see the [Environment variables](#environment-variables) section below for details on each variable.
+  </Step>
+
+  <Step title="Start the development server">
+    ```bash
+    pnpm dev
+    ```
+
+    Navigate to the URL printed in the terminal (default: `http://localhost:5173`).
+  </Step>
+</Steps>
+
+## Environment variables
+
+### Core
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ORIGIN` | `http://localhost:5173` | The canonical origin of the site. Used by SvelteKit for CSRF protection. |
+| `PUBLIC_HOST_URL` | `http://localhost:5173` | Publicly accessible base URL of the site. |
+| `ELITE_API_URL` | `https://api.eliteskyblock.com` | URL of the Elite backend API. Point this at a local API instance when developing API features. |
+| `ELITE_API_TOKEN` | — | Optional secret token for authenticating with the API (rate-limit bypass key). |
+
+<Note>
+  The live API at `https://api.eliteskyblock.com` is rate-limited and does not grant admin permissions. For admin route development, run a [local instance of the API](https://github.com/EliteFarmers/API) and set `ELITE_API_URL="http://localhost:5164"`.
+</Note>
+
+### Discord / OAuth
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PUBLIC_DISCORD_CLIENT_ID` | `1106961758905708596` | Discord application (bot) client ID used for OAuth. Must match the registered redirect URIs in the Discord developer portal. |
+| `PUBLIC_BOT_INVITE` | (full invite URL) | Full bot invite link, including permissions and scopes. |
+| `PUBLIC_COMMUNITY_ID` | `1096051612373487687` | Discord community server ID. |
+| `PUBLIC_COMMUNITY_INVITE` | `https://discord.gg/farms` | Discord community server invite link. |
+| `PUBLIC_SUPPORT_SERVER_INVITE` | `https://discord.gg/qkB8S8Qcuu` | Discord support server invite link. |
+
+### CMS (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `STRAPI_API_URL` | Internal URL for the Strapi CMS instance. Leave blank if not using the CMS. |
+| `PUBLIC_STRAPI_API_URL` | Publicly accessible Strapi URL (used by Orval to fetch the CMS OpenAPI spec). |
+| `STRAPI_TOKEN` | Bearer token for authenticating with Strapi. |
+
+<Note>
+  The CMS integration is not required for basic website development. Leave these blank if you don't need article/guide editing functionality.
+</Note>
+
+### Rate limiting
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RATE_LIMIT_SECRET` | — | Random secret string used to sign rate limit state. Set this to any random value in local dev. |
+| `RATE_LIMIT_IP` | `60` | Max requests per IP within the rate limit window. |
+| `RATE_LIMIT_IPUA` | `100` | Max requests per IP + User-Agent combination. |
+| `RATE_LIMIT_PROFILE` | `5` | Max profile page requests per window. |
+
+### Analytics (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `PUBLIC_GTAG_MEASUREMENT_ID` | Google Analytics measurement ID. When set, GA tracking and the cookie consent popup are enabled. Leave blank to disable. |
+| `AD_SCRIPT` | Full `<script>` tag for an ad provider. Leave blank to disable. |
+
+## Available scripts
+
+<CodeGroup>
+
+```bash Development
+# Start the dev server (content + Svelte, with hot reload)
+pnpm dev
+
+# Start dev server + farming-weight watch build simultaneously
+pnpm dev:all
+```
+
+```bash Building
+# Full production build (content + farming-weight package + Svelte)
+pnpm build
+
+# Type-check the project
+pnpm check
+```
+
+```bash Code quality
+# Format all files with Prettier
+pnpm format
+
+# Lint with Prettier + ESLint (zero warnings enforced)
+pnpm lint
+```
+
+```bash API
+# Regenerate the typed API client from the OpenAPI spec
+pnpm run generate-api
+
+# Run only the post-processing step (morphing + formatting)
+pnpm run postprocess-api
+```
+
+</CodeGroup>
+
+## Docker (production build)
+
+To build and run the site in a production-like Docker environment:
+
+<Steps>
+  <Step title="Configure .env for production">
+    Update `ORIGIN` and `PUBLIC_HOST_URL` to reflect the production host. For local testing with Docker on port 3000:
+
+    ```bash
+    ORIGIN="http://localhost:3000"
+    PUBLIC_HOST_URL="http://localhost:3000"
+    ```
+
+    If the API is running in the same Docker network, also set:
+
+    ```bash
+    EXTERNAL_NETWORK=true
+    ```
+  </Step>
+
+  <Step title="Start the production container">
+    ```bash
+    docker-compose up --build -d
+    ```
+
+    The site will be available at `http://localhost:3000`.
+  </Step>
+</Steps>
+
+<Tip>
+  To start only the local database and cache services (without building the full site), run `pnpm up` (which runs `docker-compose up -d database cache`).
+</Tip>

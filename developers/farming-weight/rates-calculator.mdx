@@ -1,0 +1,239 @@
+---
+title: "Rates Calculator"
+description: "Calculate expected crop drops, NPC coin income, and special item rates per farming session."
+---
+
+The rates calculator estimates how many crops a player collects and how many coins they earn from NPC sales over a given number of blocks broken. It accounts for farming fortune, reforges, pets, and special drop mechanics.
+
+## calculateDetailedAverageDrops
+
+```typescript
+function calculateDetailedAverageDrops(
+  options: CalculateDetailedDropsOptions & CropFortuneOption
+): Record<Crop, DetailedDropsResult>
+```
+
+Calculates detailed drop results for every crop simultaneously. Returns a `Record<Crop, DetailedDropsResult>` — one entry per crop.
+
+### Input parameters
+
+```typescript
+interface CalculateDetailedDropsOptions {
+  // From CalculateDropsOptions:
+  farmingFortune?: number;
+  cropFortune?: Record<Crop, number>;
+  blocksBroken: number;
+  dicerLevel?: 1 | 2 | 3;
+  armorPieces?: 1 | 2 | 3 | 4;
+  attributes?: FarmingAttributes | Record<string, number>;
+  chips?: Record<string, number>;
+  pet?: FarmingPet;
+
+  // Detailed-specific:
+  bountiful: boolean;
+  mooshroom: boolean;
+  maxTool?: boolean;
+}
+
+// Optional per-crop fortune override (merged with farmingFortune):
+type CropFortuneOption = { cropFortune?: Partial<Record<Crop, number>> };
+```
+
+<ParamField body="farmingFortune" type="number">
+  The player's total general farming fortune. Combined with any `cropFortune` entry for each crop.
+</ParamField>
+
+<ParamField body="cropFortune" type="Partial<Record<Crop, number>>">
+  Per-crop additional fortune. Added on top of `farmingFortune` for each crop when calculating drops. Use `FarmingPlayer.getCropFortune(crop).fortune` to populate this.
+</ParamField>
+
+<ParamField body="blocksBroken" type="number" required>
+  Number of blocks broken during the session. For 20 minutes at 100% efficiency, use `24000`.
+</ParamField>
+
+<ParamField body="bountiful" type="boolean" required>
+  Whether the active tool has the Bountiful reforge. Grants +20% NPC coin income on top of base drops.
+</ParamField>
+
+<ParamField body="mooshroom" type="boolean" required>
+  Whether a Mooshroom Cow pet is active. Generates bonus mushrooms from every break.
+</ParamField>
+
+<ParamField body="dicerLevel" type="1 | 2 | 3">
+  The Dicer tool level for Melon and Pumpkin. Affects special crop (e.g. Mutant Nether Wart, Colossal Potato) drop rates.
+</ParamField>
+
+<ParamField body="armorPieces" type="1 | 2 | 3 | 4">
+  Number of farming armor pieces worn. Affects special crop drop calculations. Defaults to `4`.
+</ParamField>
+
+<ParamField body="attributes" type="FarmingAttributes | Record<string, number>">
+  Armor attribute shard levels. Used by attribute-based rate modifiers.
+</ParamField>
+
+<ParamField body="chips" type="Record<string, number>">
+  Garden chip levels by chip ID. Chips can modify drop rates directly.
+</ParamField>
+
+<ParamField body="pet" type="FarmingPet">
+  The active farming pet. Used to apply pet-specific rate modifiers.
+</ParamField>
+
+<ParamField body="maxTool" type="boolean">
+  When `true`, assumes a max-level tool and calculates Tool Exp Capsule drops.
+</ParamField>
+
+## DetailedDropsResult
+
+Each crop entry in the returned record has this shape:
+
+```typescript
+interface DetailedDropsResult {
+  npcPrice: number;
+  collection: number;
+  npcCoins: number;
+  fortune: number;
+  blocksBroken: number;
+  coinSources: Record<string, number>;
+  otherCollection: Record<string, number>;
+  items: Record<string, number>;
+  rngItems?: Record<string, number>;
+  specialCropBonus: number;
+  specialCropBonusBreakdown: Record<string, number>;
+  rareItemBonus: number;
+  rareItemBonusBreakdown: Record<string, number>;
+  pendingRngItems?: Record<string, number>;
+}
+```
+
+<ResponseField name="collection" type="number">
+  Total number of this crop collected. For Wheat, this includes the replenish-adjusted amount.
+</ResponseField>
+
+<ResponseField name="npcCoins" type="number">
+  Total NPC sell income across all `coinSources`.
+</ResponseField>
+
+<ResponseField name="npcPrice" type="number">
+  NPC sell price per unit for this crop.
+</ResponseField>
+
+<ResponseField name="fortune" type="number">
+  The effective farming fortune used for this crop's calculation.
+</ResponseField>
+
+<ResponseField name="blocksBroken" type="number">
+  The blocks broken value passed in (echoed back for convenience).
+</ResponseField>
+
+<ResponseField name="coinSources" type="Record<string, number>">
+  Breakdown of coin income by source. Keys include `"Collection"`, `"Bountiful"`, `"Mooshroom"`, `"Seeds"`, `"Tool Exp Capsule"`, and special crop names.
+</ResponseField>
+
+<ResponseField name="otherCollection" type="Record<string, number>">
+  Breakdown of drop quantities by source category (e.g. `"Normal"`, `"Replenish"`, `"Seeds"`, special crop names).
+</ResponseField>
+
+<ResponseField name="items" type="Record<string, number>">
+  Drop quantities keyed by SkyBlock item ID. Includes all harvestable items from the session.
+</ResponseField>
+
+<ResponseField name="rngItems" type="Record<string, number>">
+  Expected quantities of rare random drops (e.g. `BURROWING_SPORES`), accounting for `rareItemBonus`.
+</ResponseField>
+
+<ResponseField name="specialCropBonus" type="number">
+  Multiplier bonus to special crop drops from armor set bonuses.
+</ResponseField>
+
+<ResponseField name="rareItemBonus" type="number">
+  Multiplier bonus to rare item drops from attribute shards or chips.
+</ResponseField>
+
+## Crop enum reference
+
+```typescript
+import { Crop } from 'farming-weight';
+
+Crop.Cactus      // 'CACTUS'
+Crop.Carrot      // 'CARROT_ITEM'
+Crop.CocoaBeans  // 'INK_SACK:3'
+Crop.Melon       // 'MELON'
+Crop.Mushroom    // 'MUSHROOM_COLLECTION'
+Crop.NetherWart  // 'NETHER_STALK'
+Crop.Potato      // 'POTATO_ITEM'
+Crop.Pumpkin     // 'PUMPKIN'
+Crop.SugarCane   // 'SUGAR_CANE'
+Crop.Wheat       // 'WHEAT'
+Crop.Seeds       // 'WHEAT_SEEDS'
+Crop.Sunflower   // 'DOUBLE_PLANT'
+Crop.Moonflower  // 'MOONFLOWER'
+Crop.WildRose    // 'WILD_ROSE'
+```
+
+## Basic example
+
+```typescript
+import { calculateDetailedAverageDrops, Crop } from 'farming-weight';
+
+const drops = calculateDetailedAverageDrops({
+  farmingFortune: 1500,
+  bountiful: true,
+  mooshroom: true,
+  dicerLevel: 3,
+  blocksBroken: 24000, // 100% efficiency for 20 minutes
+});
+
+console.log(drops[Crop.Wheat].collection);  // ~36000
+console.log(drops[Crop.Wheat].npcCoins);    // ~216000
+```
+
+## Per-player example
+
+Combine with `FarmingPlayer` to get accurate per-player rates that reflect the player's actual gear and fortune:
+
+```typescript
+import {
+  createFarmingPlayer,
+  calculateDetailedAverageDrops,
+  Crop,
+  FarmingPets,
+  type PlayerOptions,
+} from 'farming-weight';
+
+const player = createFarmingPlayer(options satisfies PlayerOptions);
+
+const crop = Crop.Wheat;
+const blocksBroken = 24000;
+
+const cropFortune = player.getCropFortune(crop);
+const totalFortune = player.fortune + cropFortune.fortune;
+
+const drops = calculateDetailedAverageDrops({
+  farmingFortune: totalFortune,
+  bountiful: player.selectedTool?.reforge?.name === 'Bountiful',
+  mooshroom: player.selectedPet?.type === FarmingPets.MooshroomCow,
+  dicerLevel: (player.selectedTool?.item.skyblockId?.match(/DICER_(\d+)/)?.[1] ?? 3) as 1 | 2 | 3,
+  blocksBroken,
+});
+
+console.log(drops[crop].collection);       // Wheat collected
+console.log(drops[crop].npcCoins);         // Total NPC income
+console.log(drops[crop].coinSources);      // Breakdown by source
+```
+
+<Tip>
+  Use `FarmingPlayer.getRates(crop, blocksBroken)` as a shorthand — it calls `calculateDetailedAverageDrops` internally using the player's best tool and selected pet.
+</Tip>
+
+## calculateAverageDrops
+
+A simplified variant that returns only the raw collection number per crop, without the full coin and breakdown data:
+
+```typescript
+function calculateAverageDrops(
+  options: CalculateDropsOptions & CropFortuneOption
+): Record<Crop, number>
+```
+
+Use this when you only need collection counts and want to avoid the overhead of detailed calculations.

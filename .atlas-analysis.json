@@ -1,0 +1,88 @@
+{
+  "projectType": "saas",
+  "projectName": "Elite Skyblock",
+  "projectDescription": "A full-stack web application for tracking farming weight, fortune, leaderboards, and contest data for Hypixel SkyBlock players.",
+  "theme": "almond",
+  "primaryColor": "#5cbd98",
+  "lightColor": "#dbce82",
+  "darkColor": "#5e5c41",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "self-hosting"]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/player-stats",
+              "features/farming-weight",
+              "features/fortune-calculator",
+              "features/leaderboards",
+              "features/jacob-contests"
+            ]
+          },
+          {
+            "group": "Community & Events",
+            "pages": [
+              "features/events",
+              "features/guilds",
+              "features/shop"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "groups": [
+          {
+            "group": "Contributing",
+            "pages": [
+              "developers/contributing",
+              "developers/environment-setup",
+              "developers/api-integration"
+            ]
+          },
+          {
+            "group": "Farming Weight Package",
+            "pages": [
+              "developers/farming-weight/overview",
+              "developers/farming-weight/weight-calculator",
+              "developers/farming-weight/fortune-calculator",
+              "developers/farming-weight/rates-calculator"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Farming weight calculation for Hypixel SkyBlock players",
+    "Farming fortune calculator with gear optimization",
+    "Crop collection leaderboards with multiple categories",
+    "Jacob's Farming Contest tracking and brackets",
+    "Player profile pages with detailed stats breakdown",
+    "Garden and pest tracking",
+    "Community events with team-based competition",
+    "Discord guild integration and management",
+    "In-game shop with Tebex integration",
+    "Open-source farming-weight npm package"
+  ],
+  "publicApiSurface": [
+    "createFarmingWeightCalculator(info?: FarmingWeightInfo): FarmingWeight",
+    "createFarmingPlayer(options: PlayerOptions): FarmingPlayer",
+    "calculateDetailedAverageDrops(options): Record<Crop, DropInfo>",
+    "calcWeightForCrop(crop: Crop, collection: number): number",
+    "GET /api/search - Player search endpoint",
+    "GET /api/item - Item texture lookup",
+    "GET /api/pet - Pet texture lookup",
+    "GET /@[ign]/[profile] - Player profile page",
+    "GET /leaderboard/[category] - Leaderboard by category",
+    "GET /contests - Jacob's Farming Contests",
+    "GET /event/[slug] - Community event page",
+    "GET /guilds/[id] - Guild stats page"
+  ]
+}

@@ -1,0 +1,128 @@
+---
+title: "API Integration"
+description: "How the Elite Skyblock website integrates with the Elite API, including the auto-generated typed client and Zod schemas."
+---
+
+The website is powered by the **Elite API** — a backend service that provides Hypixel Skyblock data including player profiles, farming weight, leaderboards, events, guilds, and the shop.
+
+- **Live API base URL:** `https://api.eliteskyblock.com`
+- **API repository:** [github.com/EliteFarmers/API](https://github.com/EliteFarmers/API)
+- **API Terms of Service:** [eliteskyblock.com/apiterms](https://eliteskyblock.com/apiterms)
+
+<Warning>
+  Use of the Elite API requires compliance with the [API Terms of Service](https://eliteskyblock.com/apiterms). The API is not affiliated with Hypixel or Mojang.
+</Warning>
+
+## Auto-generated typed client
+
+The website does **not** hand-write API calls. Instead, the typed client is generated automatically from the Elite API's OpenAPI specification using [Orval](https://orval.dev/).
+
+| Generated artifact | Location |
+|--------------------|----------|
+| Fetch-based API client | `src/lib/api/client/EliteAPI.ts` |
+| Zod validation schemas | `src/lib/api/client/EliteAPI.zod.ts` |
+| TypeScript type schemas | `src/lib/api/schemas/` |
+
+Everything is re-exported from `src/lib/api/index.ts` as a single entry point:
+
+```ts
+export * from './client/EliteAPI';
+export * from './client/EliteAPI.zod';
+export * from './schemas';
+```
+
+<Note>
+  `src/lib/api/client/EliteAPI.ts` is over 12,000 lines long and is entirely generated. Do not edit it manually — your changes will be overwritten the next time `pnpm run generate-api` is run.
+</Note>
+
+## Regenerating the client
+
+After the backend adds or modifies any endpoint or DTO, regenerate the client:
+
+```bash
+pnpm run generate-api
+```
+
+This command (defined in `orval.config.ts`) fetches the OpenAPI spec from `ELITE_API_URL/openapi/admin-v1.json` and writes:
+
+1. The fetch-based client to `src/lib/api/client/`
+2. Zod schemas to `src/lib/api/schemas/`
+
+After generation completes, Orval automatically runs the post-processing step:
+
+```bash
+pnpm run postprocess-api
+```
+
+This morphs the generated output (via `src/lib/api/util/morph-api.ts`) and re-formats with Prettier. You can also run `postprocess-api` independently if you only need to re-apply the transforms.
+
+<Note>
+  The API spec is fetched live from `ELITE_API_URL` at generation time. Make sure `ELITE_API_URL` in your `.env` points to a running API instance (local or live) before running `generate-api`.
+</Note>
+
+## Orval configuration
+
+The generation is configured in `orval.config.ts` at the repo root. There are three configurations:
+
+| Config key | Purpose |
+|------------|---------|
+| `elite` | Generates the fetch-based API client (`EliteAPI.ts`) from the admin OpenAPI spec |
+| `zod` | Generates Zod schemas (`EliteAPI.zod.ts`) for request/response validation |
+| `strapi` | Generates Zod schemas for the optional Strapi CMS OpenAPI spec |
+
+Key options used in the `elite` config:
+
+- **`client: 'fetch'`** — uses the native `fetch` API rather than axios
+- **`mutator`** — points to a custom fetch wrapper (`custom-fetch-placeholder.ts`) for auth and error handling
+- **`useBigInt: true`** — uses `BigInt` for large integer fields
+- **`namingConvention: 'PascalCase'`** — generated type names follow PascalCase
+
+## Key API areas
+
+The Elite API covers a broad surface area. Key domains exposed in the generated client:
+
+| Area | Example types |
+|------|--------------|
+| **Player profiles** | `PlayerDataDto`, `ProfileMemberDto`, `ProfileDetailsDto` |
+| **Farming weight** | `FarmingWeightDto`, `FarmingWeightAllProfilesDto` |
+| **Leaderboards** | `LeaderboardDto`, `LeaderboardEntryDto`, `LeaderboardPositionDto` |
+| **Jacob's contests** | `JacobContestWithParticipationsDto`, `ContestParticipationDto`, `ContestBracketsDetailsDto` |
+| **Events** | `EventDetailsDto`, `EventMemberDto`, `EventTeamWithMembersDto` |
+| **Guilds** | `GuildDetailsDto`, `GuildMembersLeaderboardDto`, `PublicGuildDto` |
+| **Shop / orders** | `ProductDto`, `OrderStatusDto`, `EntitlementDto` |
+| **Auction house / Bazaar** | `AuctionDto`, `AuctionHouseDto`, `BazaarOverviewResponse` |
+| **Auth / accounts** | `AuthResponseDto`, `AuthorizedAccountDto`, `MinecraftAccountDto` |
+
+## Rate limiting and local development
+
+<Warning>
+  The live API at `https://api.eliteskyblock.com` enforces rate limits. It is **not suitable** for admin route development because you won't have the required permissions. For any work involving admin endpoints, run a local instance of the API.
+</Warning>
+
+To point the website at a local API instance, update `ELITE_API_URL` in your `.env`:
+
+```bash
+ELITE_API_URL="http://localhost:5164"
+```
+
+Then run `pnpm run generate-api` to regenerate the client from your local OpenAPI spec — this is essential when you've modified any backend endpoint or DTO.
+
+See the [API repository](https://github.com/EliteFarmers/API) for instructions on running the backend locally.
+
+## Type extensions
+
+Some generated types are extended in `src/lib/api/elite.ts` to attach additional UI-specific fields:
+
+```ts
+// src/lib/api/elite.ts
+export type LeaderboardEntry = LeaderboardEntryDto & {
+  style?: WeightStyleWithDataDto['leaderboard'];
+  imageRefs?: WeightStyleWithDataDto['imageRefs'];
+};
+
+export type GuildMembersLeaderboard = GuildMembersLeaderboardDto & {
+  entries: LeaderboardEntry[];
+};
+```
+
+Prefer extending types this way rather than modifying the generated files directly.

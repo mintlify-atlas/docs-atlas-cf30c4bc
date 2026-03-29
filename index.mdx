@@ -1,97 +1,70 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Elite Skyblock Docs"
+description: "The best way to track farming weight, fortune, and contest data for Hypixel SkyBlock players."
 ---
 
-## Setting up
+Welcome to the Elite Skyblock documentation. Elite Skyblock is a comprehensive web platform for Hypixel SkyBlock farmers — find your farming weight, optimize your fortune setup, track Jacob's contests, and compete on leaderboards.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Look up your first player profile and explore key features in minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Farming Weight" icon="scale-balanced" href="/features/farming-weight">
+    Understand how farming weight is calculated from your crop collections.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Fortune Calculator" icon="calculator" href="/features/fortune-calculator">
+    Optimize your gear to maximize farming fortune and crop drops.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Leaderboards" icon="trophy" href="/features/leaderboards">
+    Compete globally across farming weight, crops, and skill categories.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What is Elite Skyblock?
 
-Everything you need to create world-class documentation.
+Elite Skyblock gives Hypixel SkyBlock farmers a single place to track their progress and compare against other players. The platform pulls live data from Hypixel's API to calculate your farming weight — a composite score based on crop collections, farming level, contest medals, tier-12 minions, and more.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<Steps>
+  <Step title="Search for a player">
+    Go to [eliteskyblock.com](https://eliteskyblock.com) and type any Hypixel username into the search bar.
+  </Step>
+  <Step title="Browse your profile">
+    View your farming weight, crop collections, skills, garden stats, fortune breakdown, and active event memberships.
+  </Step>
+  <Step title="Check the leaderboards">
+    See where you rank globally for farming weight, individual crops, Jacob medals, and more.
+  </Step>
+  <Step title="Join a community event">
+    Team up with other players in seasonal farming events for rewards and recognition.
+  </Step>
+</Steps>
 
-## Need inspiration?
+## Explore the platform
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Player Stats" icon="user" href="/features/player-stats">
+    Detailed per-profile breakdowns of skills, collections, tools, and garden progress.
+  </Card>
+  <Card title="Jacob's Contests" icon="medal" href="/features/jacob-contests">
+    Track contest history, brackets, and medal counts for any player.
+  </Card>
+  <Card title="Community Events" icon="flag" href="/features/events">
+    Seasonal team-based farming competitions with leaderboards and prizes.
+  </Card>
+  <Card title="Guild Integration" icon="people-group" href="/features/guilds">
+    View farming weight rankings for every member of a Hypixel guild.
+  </Card>
+</CardGroup>
+
+## For developers
+
+Elite Skyblock is open source and ships with the `farming-weight` npm package for building your own tools.
+
+<CardGroup cols={2}>
+  <Card title="Contributing" icon="code-pull-request" href="/developers/contributing">
+    Learn how to set up the project locally and contribute changes.
+  </Card>
+  <Card title="Farming Weight Package" icon="box" href="/developers/farming-weight/overview">
+    Use the open-source library to calculate farming weight in your own projects.
+  </Card>
+</CardGroup>

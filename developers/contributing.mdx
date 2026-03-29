@@ -1,0 +1,97 @@
+---
+title: "Contributing"
+description: "How to contribute to the Elite Skyblock website, an open-source project licensed under GPL-3.0."
+---
+
+The Elite Skyblock website is open source under the [GPL-3.0 license](https://github.com/EliteFarmers/Website/blob/main/LICENSE). Contributions are welcome — whether that's fixing a bug, adding a feature, or polishing the UI.
+
+## Key contribution areas
+
+- **Bug fixes** — reproducing and resolving issues reported by the community
+- **New features** — improvements to farming weight tracking, leaderboards, events, and more
+- **UI improvements** — design polish, accessibility, and responsive layout work
+
+## How to contribute
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    Fork the repository on GitHub, then clone your fork locally:
+
+    ```bash
+    git clone https://github.com/<your-username>/Website.git
+    cd Website
+    ```
+  </Step>
+
+  <Step title="Set up your development environment">
+    Follow the [Environment Setup](/developers/environment-setup) guide to install dependencies, configure your `.env` file, and start the dev server.
+  </Step>
+
+  <Step title="Make your changes">
+    Work on your bug fix or feature in a dedicated branch. Keep changes focused and avoid unrelated modifications in the same branch.
+  </Step>
+
+  <Step title="Format and lint your code">
+    Before committing, run the formatter and linter to ensure your code matches the project's style (Prettier + ESLint):
+
+    ```bash
+    pnpm format
+    pnpm lint
+    ```
+
+    The `lint` script enforces zero warnings (`--max-warnings=0`), so all warnings must be resolved before opening a PR.
+  </Step>
+
+  <Step title="Regenerate the API client if needed">
+    If you made or pulled in any backend API changes (new endpoints, modified DTOs), regenerate the typed API client:
+
+    ```bash
+    pnpm run generate-api
+    ```
+
+    This fetches the latest OpenAPI spec from `ELITE_API_URL` and regenerates `src/lib/api/client/EliteAPI.ts` and the Zod schemas in `src/lib/api/schemas/`. See [API Integration](/developers/api-integration) for details.
+  </Step>
+
+  <Step title="Open a pull request">
+    Push your branch and open a PR against the main repository. Follow the PR guidelines below.
+  </Step>
+</Steps>
+
+## PR guidelines
+
+- **Describe your changes clearly** — explain what the PR does and why, not just what files changed.
+- **Reference related issues** — link any GitHub issues your PR addresses.
+- **Mention `farming-weight` changes** — if your PR depends on unreleased changes to the [`farming-weight`](https://github.com/EliteFarmers/FarmingWeight) package, call that out explicitly so reviewers know about the dependency.
+- **Keep PRs focused** — one logical change per PR makes review easier and faster.
+
+## Working with the `farming-weight` package locally
+
+If you are simultaneously developing the [`farming-weight`](https://github.com/EliteFarmers/FarmingWeight) npm package, you can link it into the website for live testing:
+
+<Steps>
+  <Step title="Link the local package">
+    Run `pnpm link` with the path to your local `farming-weight` folder. If the repos are side by side:
+
+    ```bash
+    pnpm link ../FarmingWeight
+    ```
+  </Step>
+
+  <Step title="Rebuild on changes">
+    Each time you change something in `farming-weight`, rebuild it to trigger hot reloading in the website:
+
+    ```bash
+    pnpm build
+    ```
+
+    Alternatively, run `pnpm dev:all` from the website root to watch both projects simultaneously.
+  </Step>
+
+  <Step title="Revert the link before opening a PR">
+    Do **not** commit the `pnpm link` changes. Revert the `package.json` / lockfile modifications before pushing your branch. Also mention in your PR description that it has a dependency on a `farming-weight` change, and link to the relevant PR in that repo.
+  </Step>
+</Steps>
+
+<Warning>
+  Never commit `pnpm link` modifications. The linked path is local to your machine and will break the build for other contributors.
+</Warning>

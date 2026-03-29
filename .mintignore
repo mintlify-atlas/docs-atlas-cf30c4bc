@@ -5,3 +5,10 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Unused starter kit pages
+essentials/
+api-reference/
+ai-tools/
+development.mdx
+snippets/

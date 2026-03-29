@@ -1,0 +1,214 @@
+---
+title: "Fortune Calculator"
+description: "Calculate a player's farming fortune from their equipped tools, armor, equipment, accessories, and pets."
+---
+
+The fortune calculator models a player's gear and returns their total farming fortune, broken down by source. Fortune affects how many crops drop per block broken, so accurate values are critical for rate calculations.
+
+## createFarmingPlayer
+
+```typescript
+function createFarmingPlayer(options: PlayerOptions): FarmingPlayer
+```
+
+Creates a `FarmingPlayer` instance from the provided options. All item arrays are optional — omitted arrays default to empty.
+
+## PlayerOptions
+
+```typescript
+interface PlayerOptions extends FortuneMissingFromAPI {
+  collection?: Record<string, number>;
+  farmingXp?: number;
+  farmingLevel?: number;
+  strength?: number;
+
+  tools?: EliteItemDto[] | FarmingTool[];
+  armor?: EliteItemDto[] | FarmingArmor[] | ArmorSet;
+  equipment?: EliteItemDto[] | FarmingEquipment[];
+  accessories?: EliteItemDto[] | FarmingAccessory[];
+  pets?: FarmingPetType[] | FarmingPet[];
+
+  selectedTool?: FarmingTool;
+  selectedPet?: FarmingPet;
+  selectedCrop?: Crop;
+
+  personalBestsUnlocked?: boolean;
+  personalBests?: Record<string, number>;
+  bestiaryKills?: Record<string, number>;
+  anitaBonus?: number;
+  uniqueVisitors?: number;
+  dnaMilestone?: number;
+
+  extraFortune?: ExtraFarmingFortune[];
+  jacobContest?: {
+    enabled: boolean;
+    crop?: Crop;
+  };
+  zorro?: {
+    enabled: boolean;
+    mode: ZorroMode | `${ZorroMode}`;
+  };
+}
+```
+
+Fields inherited from `FortuneMissingFromAPI` supply fortune sources that the Hypixel API does not expose directly:
+
+```typescript
+interface FortuneMissingFromAPI {
+  cropUpgrades?: Partial<Record<Crop, number>>;
+  gardenLevel?: number;
+  plotsUnlocked?: number;
+  plots?: string[];
+  uniqueVisitors?: number;
+  communityCenter?: number;
+  milestones?: Partial<Record<Crop, number>>;
+  exportableCrops?: Partial<Record<Crop, boolean>>;
+  refinedTruffles?: number;
+  wrigglingLarva?: number;
+  cocoaFortuneUpgrade?: number;
+  filledRosewaterFlask?: number;
+  sprayedPlot?: boolean;
+  infestedPlotProbability?: number;
+  attributes?: Record<string, number>;
+  chips?: Partial<FarmingPlayerGardenChips>;
+  perks?: Record<string, string | null | number>;
+  temporaryFortune?: TemporaryFarmingFortune;
+}
+```
+
+<Warning>
+  Hypixel's API does not expose all fortune sources. Garden-specific values like `gardenLevel`, `plotsUnlocked`, `cropUpgrades`, and `milestones` must come from Elite Skyblock's API or your own data pipeline, not directly from the Hypixel API.
+</Warning>
+
+## Item types
+
+Each item array accepts either raw `EliteItemDto` objects or pre-constructed class instances. Use `EliteItemDto` when working with data from the Elite Skyblock API.
+
+| Array | Class | Description |
+|-------|-------|-------------|
+| `tools` | `FarmingTool` | Farming hoes and axes |
+| `armor` | `FarmingArmor` / `ArmorSet` | Helmet, chestplate, leggings, boots |
+| `equipment` | `FarmingEquipment` | Necklace, cloak, belt, gloves |
+| `accessories` | `FarmingAccessory` | Farming-related talismans and relics |
+| `pets` | `FarmingPet` | Pets with farming fortune abilities |
+
+## FarmingPlayer properties and methods
+
+### fortune
+
+```typescript
+get fortune(): number
+```
+
+The player's total farming fortune (permanent + temporary). This is the base value shared across all crops. Add the result of `getCropFortune(crop)` to get the full fortune for a specific crop.
+
+### selectedTool
+
+```typescript
+selectedTool?: FarmingTool
+```
+
+The active tool. Defaults to the tool with the highest fortune for the crop in question. You can override it via `options.selectedTool`.
+
+### selectedPet
+
+```typescript
+selectedPet?: FarmingPet
+```
+
+The active pet. Defaults to the pet marked as active in the API, then falls back to the pet with the highest farming fortune.
+
+### getCropFortune(crop?, tool?)
+
+```typescript
+getCropFortune(
+  crop?: Crop,
+  tool?: FarmingTool
+): { fortune: number; breakdown: StatBreakdown }
+```
+
+Returns the **crop-specific** fortune for the given crop, along with a named breakdown of every contributing source. If no crop is provided, it returns general farming fortune.
+
+To get the full farming fortune for a specific crop, add `player.fortune` and the returned `fortune`:
+
+```typescript
+const totalFortune = player.fortune + player.getCropFortune(Crop.Wheat).fortune;
+```
+
+### getRates(crop, blocksBroken)
+
+```typescript
+getRates(crop: Crop, blocksBroken: number): DetailedDropsResult
+```
+
+Convenience method that combines `getCropFortune` with `calculateDetailedDrops` using the player's best tool for the crop and their selected pet.
+
+## Fortune sources
+
+The calculator accounts for fortune from all of these sources when the relevant data is provided:
+
+- Farming skill level (via `farmingLevel`)
+- Selected tool (level, enchantments, reforges, gems, Farming for Dummies)
+- Armor set (enchantments, reforges, gems, set bonuses)
+- Equipment (necklace, cloak, belt, gloves)
+- Accessories (active, family-deduplicated)
+- Selected pet (base stats, per-level stats, abilities, held item)
+- Garden level, plots unlocked, crop upgrades, crop milestones
+- Community Center, visitors, Anita bonus, personal bests
+- Garden chips, armor attributes, temporary fortune sources
+- Jacob's Contest context and Zorro mask mode
+
+## Full example
+
+```typescript
+import {
+  createFarmingPlayer,
+  calculateDetailedAverageDrops,
+  Crop,
+  FarmingPets,
+  type PlayerOptions,
+} from 'farming-weight';
+
+const options = {
+  tools: farmingTools,         // EliteItemDto[] or FarmingTool[]
+  armor: armorSet,             // EliteItemDto[] | FarmingArmor[] | ArmorSet
+  equipment: equipment,        // EliteItemDto[] or FarmingEquipment[]
+  accessories: accessories,    // EliteItemDto[] or FarmingAccessory[]
+  pets: pets,                  // FarmingPetType[] or FarmingPet[]
+
+  farmingLevel: 60,
+  gardenLevel: 15,
+  plotsUnlocked: 24,
+  cropUpgrades: {
+    [Crop.Wheat]: 9,
+  },
+  milestones: {
+    [Crop.Wheat]: 6,
+  },
+} satisfies PlayerOptions;
+
+const player = createFarmingPlayer(options);
+
+// General farming fortune (shared across all crops)
+console.log(player.fortune); // e.g. 1420
+
+// Crop-specific fortune for Wheat
+const cropFortune = player.getCropFortune(Crop.Wheat);
+console.log(cropFortune.fortune); // e.g. 80
+console.log(cropFortune.breakdown);
+// { "Wheat Crop Upgrade": 36, "Wheat Milestone": 12, ... }
+
+// Combine for total Wheat fortune
+const totalFortune = player.fortune + cropFortune.fortune; // 1500
+
+// Pass into the rates calculator
+const drops = calculateDetailedAverageDrops({
+  farmingFortune: totalFortune,
+  bountiful: player.selectedTool?.reforge?.name === 'Bountiful',
+  mooshroom: player.selectedPet?.type === FarmingPets.MooshroomCow,
+  dicerLevel: (player.selectedTool?.item.skyblockId?.match(/DICER_(\d+)/)?.[1] ?? 3) as 1 | 2 | 3,
+  blocksBroken: 24000,
+});
+
+console.log(drops[Crop.Wheat].collection); // Expected Wheat collection
+```

@@ -1,0 +1,196 @@
+---
+title: "Weight Calculator"
+description: "Calculate a player's total farming weight from crop collections, farming XP, contest medals, minions, and pests."
+---
+
+The weight calculator converts a player's SkyBlock data into a single farming weight score. Weight is split into **crop weight** (based on collection amounts) and **bonus weight** (from level, medals, minions, and Anita upgrades).
+
+## createFarmingWeightCalculator
+
+```typescript
+function createFarmingWeightCalculator(info?: FarmingWeightInfo): FarmingWeight
+```
+
+Creates a `FarmingWeight` instance. All fields on `FarmingWeightInfo` are optional — omitted fields are treated as zero or empty.
+
+### FarmingWeightInfo
+
+```typescript
+interface FarmingWeightInfo {
+  collection?: Record<string, number>;
+  farmingXp?: number;
+  levelCapUpgrade?: number;
+  anitaBonusFarmingFortuneLevel?: number;
+  minions?: string[];
+  contests?: {
+    collected: number;
+    claimed_position?: number;
+    claimed_participants?: number;
+    claimed_medal?: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | string;
+  }[];
+  pests?: Record<string, number>;
+}
+```
+
+<ResponseField name="collection" type="Record<string, number>">
+  Crop collections keyed by Hypixel SkyBlock item ID (e.g. `"WHEAT"`, `"CARROT_ITEM"`). Use the `Crop` enum values as keys.
+</ResponseField>
+
+<ResponseField name="farmingXp" type="number">
+  Raw farming XP from `member.player_data?.experience?.SKILL_FARMING`. Used to award Farming 50 (100 weight) and Farming 60 (250 weight) bonuses.
+</ResponseField>
+
+<ResponseField name="levelCapUpgrade" type="number">
+  The farming level cap upgrade level from `member.jacobs_contest?.perks?.farming_level_cap`. Required to unlock the Farming 60 bonus.
+</ResponseField>
+
+<ResponseField name="anitaBonusFarmingFortuneLevel" type="number">
+  Anita's double-drops upgrade level from `member.jacobs_contest?.perks?.double_drops`. Each level contributes 2 bonus weight.
+</ResponseField>
+
+<ResponseField name="minions" type="string[]">
+  Array of crafted minion IDs from `member.player_data?.crafted_generators`. Include minions crafted by all members of the profile. Only tier-12 farming minions contribute weight.
+</ResponseField>
+
+<ResponseField name="contests" type="array">
+  Array of Jacob's Contest results. Used to derive diamond, platinum, and gold medal counts for bonus weight. You can skip this and call `setEarnedMedals` directly instead.
+</ResponseField>
+
+<ResponseField name="pests" type="Record<string, number>">
+  Bestiary kill counts from `member.bestiary.kills`. Used to calculate pest-adjusted (uncounted) crop weight.
+</ResponseField>
+
+## Method chaining
+
+After construction, you can update individual values using the fluent API. Each method returns the `FarmingWeight` instance.
+
+```typescript
+calculator
+  .setCropsFromCollections(collections)   // Record<string, number>
+  .setFarmingXp(xp)                       // number
+  .setLevelCap(levelCap)                  // number
+  .setAnitaBonusLevel(level)              // number
+  .addMinions(minions)                    // string[]
+  .setTier12MinionCount(count)            // number
+  .setEarnedMedals({ diamond, platinum, gold }) // Partial<{ diamond: number; platinum: number; gold: number }>
+  .setContests(contests)                  // FarmingWeightInfo['contests']
+```
+
+<Note>
+  `setEarnedMedals` and `setContests` both set the medal counts used for bonus weight. Use one or the other — calling `setEarnedMedals` after `setContests` will override the values derived from contests.
+</Note>
+
+## getWeightInfo()
+
+Returns a snapshot of the current calculated weight.
+
+```typescript
+const weight = calculator.getWeightInfo();
+// Returns:
+// {
+//   totalWeight: number;
+//   bonusWeight: number;
+//   cropWeight: number;
+//   bonusSources: Record<string, number>;
+//   uncountedCrops: Partial<Record<Crop, number>>;
+// }
+```
+
+<ResponseField name="totalWeight" type="number">
+  The sum of `cropWeight` and `bonusWeight`.
+</ResponseField>
+
+<ResponseField name="bonusWeight" type="number">
+  Weight earned from non-collection sources: farming level, Anita, tier-12 minions, and contest medals.
+</ResponseField>
+
+<ResponseField name="cropWeight" type="number">
+  Weight derived from crop collections, adjusted for pest-killed crops.
+</ResponseField>
+
+<ResponseField name="bonusSources" type="Record<string, number>">
+  Breakdown of each bonus weight component. Keys include `"Farming 50"`, `"Farming 60"`, `"Anita Bonus"`, `"Tier 12 Minions"`, and `"Contest Medals"`.
+</ResponseField>
+
+<ResponseField name="uncountedCrops" type="Partial<Record<Crop, number>>">
+  Crops that were killed by pests and subtracted from the collection before calculating weight. These amounts do not count toward crop weight.
+</ResponseField>
+
+## calcWeightForCrop
+
+A standalone utility for calculating the weight of a single crop collection. Use `createFarmingWeightCalculator` for accurate multi-crop weight since mushroom weight depends on the ratio of other crops.
+
+```typescript
+function calcWeightForCrop(crop: Crop, collection: number): number
+```
+
+```typescript
+import { calcWeightForCrop, Crop } from 'farming-weight';
+
+const wheatWeight = calcWeightForCrop(Crop.Wheat, 1_000_000);
+// 1000000 / 100000 = 10
+```
+
+## Crop weight divisors
+
+Each crop's weight is its collection amount divided by a divisor. Higher divisors mean that crop is harder to weight.
+
+| Crop | Divisor |
+|------|---------|
+| Cactus | 178,730.65 |
+| Carrot | 300,000 |
+| Cocoa Beans | 276,733.75 |
+| Melon | 488,435.88 |
+| Mushroom | 90,944.27 (dynamic) |
+| Nether Wart | 248,606.81 |
+| Potato | 298,328.17 |
+| Pumpkin | 99,236.12 |
+| Sugar Cane | 198,885.45 |
+| Wheat | 100,000 |
+| Sunflower | 200,000 |
+| Moonflower | 200,000 |
+| Wild Rose | 200,000 |
+
+<Note>
+  Mushroom weight is calculated dynamically based on the ratio of double-break crops (Cactus, Sugar Cane) to single-break crops in the player's collection. This reflects how the Mooshroom Cow pet generates mushrooms at different rates depending on what you farm.
+</Note>
+
+## Pest-adjusted crop weight
+
+When pests kill crops, those crops enter your collection but should not count toward your farming weight. The calculator accepts a `pests` bestiary kill map and automatically subtracts the estimated pest-killed amounts from each crop's collection before calculating weight. These subtracted amounts are exposed in `uncountedCrops`.
+
+## Full example
+
+```typescript
+import { createFarmingWeightCalculator } from 'farming-weight';
+
+const member = // SkyBlock member from Hypixel API (pre-processed)
+
+const calculator = createFarmingWeightCalculator({
+  collection: member.collection,
+  farmingXp: member.player_data?.experience?.SKILL_FARMING,
+  levelCapUpgrade: member.jacobs_contest?.perks?.farming_level_cap,
+  anitaBonusFarmingFortuneLevel: member.jacobs_contest?.perks?.double_drops,
+  minions: member.player_data?.crafted_generators,
+  contests: Object.values(member.jacob_contest?.contests ?? {}),
+  pests: member.bestiary.kills,
+});
+
+// Override medal counts directly instead of using contests:
+calculator.setEarnedMedals({
+  diamond: 42,
+  platinum: 180,
+  gold: 350,
+});
+
+const weight = calculator.getWeightInfo();
+
+console.log(weight.totalWeight);
+// 10000.53
+
+console.log(weight.bonusSources);
+// { "Contest Medals": 123.25, "Farming 60": 250, "Tier 12 Minions": 25, ... }
+
+console.log(weight.uncountedCrops);
+// { [Crop.Wheat]: 45000, [Crop.Carrot]: 12000, ... }
+```
